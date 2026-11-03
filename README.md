@@ -1,6 +1,6 @@
 # Code Pact
 
-[简体中文](README.zh-CN.md) | **English**
+[Chinese](README.zh-CN.md) | **English**
 
 > Keep Codex, Claude Code, and Cursor from overengineering, missing validation, and producing noisy handoffs.
 
@@ -85,12 +85,12 @@ The agent must not say `merge-ready` when P0 validation was not run or failed.
 Every implementation or review ends with:
 
 ```text
-【目标】
-【改动文件】
-【自测结果】
-【风险】
-【必须验收】
-【结论】
+Objective:
+Changed Files:
+Validation Results:
+Risks:
+Required Acceptance Checks:
+Conclusion:
 ```
 
 No long generic handoff.
@@ -170,7 +170,7 @@ pwsh -NoProfile -File scripts/test-skill.ps1
 pwsh -NoProfile -File scripts/test-eval-fixtures.ps1
 ```
 
-The main test-skill.ps1 command already includes evaluation-fixture validation; test-eval-fixtures.ps1 is available as a focused check. The static checks validate UTF-8 source files, required rule sections, canonical naming, local Markdown links, and behavior-contract coverage. They do not execute an AI agent or prove model behavior. Use the [manual behavior evaluation](evals/manual-evaluation.md) before claiming behavior-contract acceptance. See [the implementation plan](docs/项目补强实施方案.md) for the scope and acceptance criteria.
+The main test-skill.ps1 command already includes evaluation-fixture validation; test-eval-fixtures.ps1 is available as a focused check. The static checks validate UTF-8 source files, required rule sections, canonical naming, local Markdown links, and behavior-contract coverage. They do not execute an AI agent or prove model behavior. Use the [manual behavior evaluation](evals/manual-evaluation.md) before claiming behavior-contract acceptance. See the implementation plan in the `docs/` directory for the scope and acceptance criteria.
 
 ## Example: before vs after
 
@@ -205,12 +205,12 @@ Plan:
 4. Run build/typecheck if available
 
 Executive Summary:
-【目标】add export button to user list.
-【改动文件】UserList page action area.
-【自测结果】checked page render path; build not run because ...
-【风险】export API behavior not changed.
-【必须验收】verify the page entry and run build/typecheck when available.
-【结论】can continue / needs small fix / merge-ready
+Objective:add export button to user list.
+Changed Files:UserList page action area.
+Validation Results:checked page render path; build not run because ...
+Risks:export API behavior not changed.
+Required Acceptance Checks:verify the page entry and run build/typecheck when available.
+Conclusion:can continue / needs small fix / merge-ready
 ```
 
 ## When to use
