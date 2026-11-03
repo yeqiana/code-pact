@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Pact"
+  short_description: "Keep AI coding scoped, minimal, validated, and concise."
+  default_prompt: "Use $code-pact as Code Pact: classify this coding task, apply risk modifiers, make the minimal sufficient change, validate P0 behavior with evidence, and finish with 【目标】、【改动文件】、【自测结果】、【风险】、【必须验收】、【结论】."
+
+policy:
+  allow_implicit_invocation: true

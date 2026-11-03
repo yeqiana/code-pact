@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Code Pact V2 Behavior Case",
+  "type": "object",
+  "required": ["id", "revision", "title", "class", "task", "expected_behaviors", "forbidden_behaviors", "required_evidence", "max_ceremony"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^V2-C[0-9]{2}$" },
+    "revision": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "class": { "enum": ["deterministic", "behavioral", "critical_behavioral"] },
+    "task": { "type": "string", "minLength": 1 },
+    "expected_behaviors": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "forbidden_behaviors": { "type": "array", "items": { "type": "string" } },
+    "required_evidence": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "max_ceremony": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}
