@@ -132,7 +132,8 @@ foreach ($summaryDocument in @(
     'agents/openai.yaml'
 )) {
     $document = Read-Utf8 $summaryDocument
-    foreach ($label in $summaryLabels) {
+    $labelsToCheck = if ($summaryDocument -eq 'README.md') { @('Objective:', 'Changed Files:', 'Validation Results:', 'Risks:', 'Required Acceptance Checks:', 'Conclusion:') } else { $summaryLabels }
+    foreach ($label in $labelsToCheck) {
         Require-Text $document $label $summaryDocument
     }
 }
