@@ -12,6 +12,7 @@ function newRun(dir,overrides={}){
  return row;
 }
 function inTemp(fn){
+ fs.mkdirSync(e.RESULTS_ROOT,{recursive:true});
  const dir=fs.mkdtempSync(path.join(e.RESULTS_ROOT,'.code-pact-test-'));
  const rel=path.relative(e.ROOT,dir).replace(/\\/g,'/');
  try{fn(dir,rel);}finally{fs.rmSync(dir,{recursive:true,force:true});}
