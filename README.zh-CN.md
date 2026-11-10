@@ -30,16 +30,18 @@ AI 写代码很快，但经常出现这些问题：
 
 这个 Skill 用一套轻量规则解决这些问题。
 
+项目也提供 [工具安全契约](references/tool-safety-contract.md)：把 MCP/网页/Issue 输出视为不可信数据，限制敏感信息传播，并对未经授权的外部写入和破坏性操作设立审批边界。最终摘要按照用户所用语言生成。
+
 ## 核心机制
 
 ### 1. 任务分级
 
 | 等级 | 适用场景 | 流程 |
 |---|---|---|
-| L0 微任务 | 改文案、改颜色、小 Bug | 直接改 + 自测 + 摘要 |
-| L1 小功能 | 按钮、简单接口、表单校验 | Task Card + 影响分析 + Checklist |
-| L2 模块任务 | 登录、权限、上传、多层联动 | 简版方案 + 任务拆分 + Review + 测试 |
-| L3 项目级任务 | 新项目、大重构、架构变更 | PRD + 架构 + Backlog + Release |
+| L0 局部可逆 | 范围明确、风险低、容易回滚 | 检查 → 修改 → 定向验证 → 摘要 |
+| L1 有界改动 | 少量文件或相邻模块，影响可枚举 | 影响分析 → 最小充分修改 → 验证 → 摘要 |
+| L2 跨边界/高风险 | 公共契约、权限、数据库、配置或关键歧义 | 简短决策 → 分阶段实施 → 验证门禁 → Review |
+| L3 架构/长期任务 | 架构迁移、长期执行或多 Agent | 规范/计划 → 必要时持久状态 → 回归 → Review |
 
 关键原则：
 
@@ -52,7 +54,7 @@ V2 任务分级依据改动范围、不确定性、影响范围、可回滚性�
 AI 必须：
 
 - 改最少文件
-- 改最少代码
+- 在保持已有规范与调用链一致性的前提下执行最小充分修改
 - 不做无关格式化
 - 不顺手优化
 - 不顺手重构
@@ -114,7 +116,7 @@ DTO / 类型
 将仓库克隆到 Codex 的 skills 目录：
 
 ```powershell
-git clone git@github.com:yeqiana/code-pact.git "$env:USERPROFILE\.codex\skills\code-pact"
+git clone https://github.com/yeqiana/code-pact.git "$env:USERPROFILE\.codex\skills\code-pact"
 ```
 
 也可以把 `SKILL.md` 放到你的 AI 工具 skills 目录，例如 Claude Code：

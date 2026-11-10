@@ -72,6 +72,7 @@ $readme = Read-Utf8 'README.md'
 $readmeZh = Read-Utf8 'README.zh-CN.md'
 $contracts = Read-Utf8 'evals/behavior-contracts.md'
 $manualEvaluation = Read-Utf8 'evals/manual-evaluation.md'
+$toolSafety = Read-Utf8 'references/tool-safety-contract.md'
 $v1Contracts = Read-Utf8 'evals/v1-behavior-contracts.md'
 $v1Manual = Read-Utf8 'evals/v1-manual-evaluation.md'
 $v1Baseline = Read-Utf8 'evals/v1-baseline-d660eaa.md'
@@ -100,6 +101,11 @@ Require-Text $spec 'ACTIVE_NORMATIVE_SOURCE: references/code-pact-execution-spec
 Require-Text $spec 'Minimal Sufficient Change' 'references/code-pact-execution-spec-v2.md'
 Require-Text $spec '## 6.1 Context Contract' 'references/code-pact-execution-spec-v2.md'
 Require-Text $spec 'Maintainer-quality Review' 'references/code-pact-execution-spec-v2.md'
+Require-Text $spec '## 6.5 Tool Safety / Untrusted Inputs' 'references/code-pact-execution-spec-v2.md'
+Require-Text $skill '## Tool Safety / Untrusted Inputs' 'SKILL.md'
+Require-Text $toolSafety '## Trust boundaries' 'references/tool-safety-contract.md'
+Require-Text $toolSafety '## Secrets and data scope' 'references/tool-safety-contract.md'
+Require-Text $toolSafety '## Capability and approval' 'references/tool-safety-contract.md'
 Require-Text $v1Spec 'SUPERSEDED historical baseline' 'references/code-pact-execution-spec-v1.md'
 Require-Text $readme '$code-pact' 'README.md'
 Require-Text $readmeZh '$code-pact' 'README.zh-CN.md'
@@ -132,15 +138,16 @@ foreach ($summaryDocument in @(
     'agents/openai.yaml'
 )) {
     $document = Read-Utf8 $summaryDocument
-    $labelsToCheck = if ($summaryDocument -eq 'README.md') { @('Objective:', 'Changed Files:', 'Validation Results:', 'Risks:', 'Required Acceptance Checks:', 'Conclusion:') } else { $summaryLabels }
+    $labelsToCheck = if ($summaryDocument -in @('README.md', 'SKILL.md', 'agents/openai.yaml')) { @('Objective:', 'Changed Files:', 'Validation Results:', 'Risks:', 'Required Acceptance Checks:', 'Conclusion:') } else { $summaryLabels }
     foreach ($label in $labelsToCheck) {
         Require-Text $document $label $summaryDocument
     }
 }
 
+if ($readme -match '[\u4e00-\u9fff]') { Add-Failure 'English README contains Chinese text.' }
 $caseCount = [regex]::Matches($contracts, '(?m)^## Case \d+:').Count
-if ($caseCount -lt 16) {
-    Add-Failure ("Active V2 behavior contracts must define at least 16 cases; found " + $caseCount)
+if ($caseCount -lt 20) {
+    Add-Failure ("Active V2.1 behavior contracts must define at least 20 cases; found " + $caseCount)
 }
 
 foreach ($contractMarker in @(
@@ -160,6 +167,10 @@ foreach ($contractMarker in @(
     'Shared-state stays serial',
     'Capability-based roles',
     'Harness feedback loop',
+    'Untrusted tool output',
+    'Secret-safe diagnostics',
+    'External publication approval',
+    'User-language summary',
     'Execution Approval',
     'do not report merge-ready merely because tests pass'
 )) {
@@ -184,6 +195,13 @@ $evalFixtureScript = Join-Path $PSScriptRoot 'test-eval-fixtures.ps1'
 & $evalFixtureScript
 if (-not $?) {
     Add-Failure 'Evaluation fixture validation failed'
+}
+
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Add-Failure 'Node.js 20+ is required for negative evaluation tests'
+} else {
+    & node --test (Join-Path $PSScriptRoot 'tests/eval-contracts.test.cjs')
+    if ($LASTEXITCODE -ne 0) { Add-Failure 'Evaluation negative tests failed' }
 }
 if ($failures.Count -gt 0) {
     $failures | ForEach-Object { Write-Error $_ }
