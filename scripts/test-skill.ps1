@@ -73,6 +73,14 @@ $readmeZh = Read-Utf8 'README.zh-CN.md'
 $contracts = Read-Utf8 'evals/behavior-contracts.md'
 $manualEvaluation = Read-Utf8 'evals/manual-evaluation.md'
 $toolSafety = Read-Utf8 'references/tool-safety-contract.md'
+$reviewLifecycle = Read-Utf8 'references/review-lifecycle-contract.md'
+$reviewSchema = Read-Utf8 'evals/schema/review.schema.json'
+$reviewCli = Read-Utf8 'scripts/review-lifecycle.cjs'
+$reviewReport = Read-Utf8 'scripts/lib/review-report.cjs'
+$reviewLedgerTemplate = Read-Utf8 'templates/review-ledger.template.json'
+$taskRoutingContract = Read-Utf8 'references/task-routing-contract.md'
+$taskRouterLibrary = Read-Utf8 'scripts/lib/task-router.cjs'
+$taskRouterCli = Read-Utf8 'scripts/task-router.cjs'
 $v1Contracts = Read-Utf8 'evals/v1-behavior-contracts.md'
 $v1Manual = Read-Utf8 'evals/v1-manual-evaluation.md'
 $v1Baseline = Read-Utf8 'evals/v1-baseline-d660eaa.md'
@@ -106,6 +114,27 @@ Require-Text $skill '## Tool Safety / Untrusted Inputs' 'SKILL.md'
 Require-Text $toolSafety '## Trust boundaries' 'references/tool-safety-contract.md'
 Require-Text $toolSafety '## Secrets and data scope' 'references/tool-safety-contract.md'
 Require-Text $toolSafety '## Capability and approval' 'references/tool-safety-contract.md'
+Require-Text $skill '## Task Mode Routing' 'SKILL.md'
+Require-Text $skill 'references/task-routing-contract.md' 'SKILL.md'
+Require-Text $spec '## 6.7 Task Mode Routing / Adaptive Context' 'references/code-pact-execution-spec-v2.md'
+Require-Text $taskRoutingContract 'SUBORDINATE_REFERENCE:' 'references/task-routing-contract.md'
+Require-Text $taskRoutingContract 'task_level: assess_from_repository' 'references/task-routing-contract.md'
+Require-Text $skill '## Review Lifecycle' 'SKILL.md'
+Require-Text $spec '## 6.6 Review Lifecycle' 'references/code-pact-execution-spec-v2.md'
+Require-Text $reviewLifecycle 'explicit user decision can authorize' 'references/review-lifecycle-contract.md'
+Require-Text $reviewLifecycle 'PASS_WITH_ACCEPTED_RISKS' 'references/review-lifecycle-contract.md'
+Require-Text $reviewSchema 'Code Pact Review Lifecycle Ledger V1' 'evals/schema/review.schema.json'
+Require-Text $reviewCli 'REVIEW_LEDGER_INVALID' 'scripts/review-lifecycle.cjs'
+Require-Text $reviewCli 'renderReviewReport' 'scripts/review-lifecycle.cjs'
+Require-Text $taskRouterLibrary 'routeTask' 'scripts/lib/task-router.cjs'
+Require-Text $taskRouterCli 'TASK_ROUTER_FAILED' 'scripts/task-router.cjs'
+Require-Text $readme '## Task modes and plan-driven workflows' 'README.md'
+Require-Text $readmeZh 'scripts/task-router.cjs' 'README.zh-CN.md'
+Require-Text $reviewReport 'renderReviewReport' 'scripts/lib/review-report.cjs'
+Require-Text $reviewSchema 'validation_ids' 'evals/schema/review.schema.json'
+Require-Text $reviewLedgerTemplate 'schema_version' 'templates/review-ledger.template.json'
+Require-Text $readme 'Multi-round Review Lifecycle' 'README.md'
+Require-Text $readmeZh 'Review Lifecycle' 'README.zh-CN.md'
 Require-Text $v1Spec 'SUPERSEDED historical baseline' 'references/code-pact-execution-spec-v1.md'
 Require-Text $readme '$code-pact' 'README.md'
 Require-Text $readmeZh '$code-pact' 'README.zh-CN.md'
@@ -146,8 +175,8 @@ foreach ($summaryDocument in @(
 
 if ($readme -match '[\u4e00-\u9fff]') { Add-Failure 'English README contains Chinese text.' }
 $caseCount = [regex]::Matches($contracts, '(?m)^## Case \d+:').Count
-if ($caseCount -lt 20) {
-    Add-Failure ("Active V2.1 behavior contracts must define at least 20 cases; found " + $caseCount)
+if ($caseCount -lt 33) {
+    Add-Failure ("Active V2.2 behavior contracts must define at least 33 cases; found " + $caseCount)
 }
 
 foreach ($contractMarker in @(
@@ -171,6 +200,19 @@ foreach ($contractMarker in @(
     'Secret-safe diagnostics',
     'External publication approval',
     'User-language summary',
+'Multi-round review continuity',
+'Requirement traceability and omission detection',
+'Root-cause evidence chain',
+'Risk acceptance requires user approval',
+'Final verdict derived from evidence',
+'Reopen finding without losing identity',
+'Invalidate stale review evidence',
+    'Single-entry project analysis stays read-only',
+    'Plan-driven implementation then verification',
+    'Task mode is independent from task level',
+    'Release routing does not authorize publication',
+    'Negated and ambiguous routing fails safely',
+    'Selective context loading by task intent',
     'Execution Approval',
     'do not report merge-ready merely because tests pass'
 )) {
@@ -200,7 +242,7 @@ if (-not $?) {
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
     Add-Failure 'Node.js 20+ is required for negative evaluation tests'
 } else {
-    & node --test (Join-Path $PSScriptRoot 'tests/eval-contracts.test.cjs')
+    & node --test (Join-Path $PSScriptRoot 'tests/eval-contracts.test.cjs') (Join-Path $PSScriptRoot 'tests/review-lifecycle.test.cjs') (Join-Path $PSScriptRoot 'tests/task-router.test.cjs')
     if ($LASTEXITCODE -ne 0) { Add-Failure 'Evaluation negative tests failed' }
 }
 if ($failures.Count -gt 0) {

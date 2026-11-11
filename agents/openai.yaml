@@ -1,7 +1,7 @@
 interface:
   display_name: "Code Pact"
-  short_description: "Keep AI coding scoped, minimal, validated, and concise."
-  default_prompt: "Use $code-pact: classify the task by risk; make the minimal sufficient change; respect tool safety and authorized scope; validate P0 with evidence; finish in the user language with these fields: Objective:, Changed Files:, Validation Results:, Risks:, Required Acceptance Checks:, Conclusion:. Translate labels when the user writes in another language."
+  short_description: "Route AI coding work and keep reviews evidence-based, traceable, and validated."
+  default_prompt: "Use $code-pact: route the task to Analyze, Plan, Implement, Debug, Review, Verify, or Release; classify risk separately;route the task to Analyze, Plan, Implement, Debug, Review, Verify, or Release; infer the user's primary intent and combine only necessary phases, use selective context, keep Analyze read-only and plan-driven Implement/Verify traceable to original requirements; classify risk separately; make the minimal sufficient change; respect tool safety and authorized scope; validate P0 with evidence. For multi-round reviews, preserve a requirement/finding/decision ledger, root-cause evidence, explicit risk approvals, and a derived final verdict. Finish in the user language with Objective:, Changed Files:, Validation Results:, Risks:, Required Acceptance Checks:, and Conclusion:. Translate labels when the user writes in another language."
 
 policy:
   allow_implicit_invocation: true

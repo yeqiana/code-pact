@@ -1,6 +1,6 @@
 ---
 name: code-pact
-description: Use when coding agents need guardrails against overengineering, scope creep, missing validation, noisy handoffs, or unverified completion. Classifies tasks by risk and change surface, enforces minimal sufficient change, runs impact and self-checks, and ends with concise evidence-based summaries. Trigger for coding tasks, bug fixes, feature work, code review, test/acceptance planning, implementation handoff, or generating project agent rules from the AI Coding execution specification.
+description: Use when coding agents need guardrails against overengineering, scope creep, missing validation, noisy handoffs, unverified completion, or multi-round review drift. Routes Analyze, Plan, Implement, Debug, Review, Verify, and Release tasks; enforces minimal sufficient change, requirement traceability, root-cause evidence, and evidence-based acceptance. Trigger for coding, bug fixes, feature work, design/code review, multi-round review, test/acceptance, release, or project agent rules.
 ---
 
 # Code Pact
@@ -25,6 +25,22 @@ Choose the lowest level that safely covers the change. Do not classify primarily
 | L3 Architectural / Long-running | Architecture change, migration, long-running or multi-agent work | authority/spec -> plan -> durable state when triggered -> checkpoints -> regression -> maintainer-quality review |
 
 Task level is driven by change surface, uncertainty, blast radius, reversibility, validation cost, and shared-state sensitivity.
+
+## Task Mode Routing
+
+Task mode is independent from L0-L3 task level. Route by user intent, then choose the lightest safe level:
+
+- Analyze: inspect and explain a project; read-only by default.
+- Plan: establish requirements, decisions, scope and acceptance criteria.
+- Implement: make authorized changes and validate them.
+- Debug: reproduce, trace and verify root causes before fixing.
+- Review: inspect designs or code; use Review Lifecycle only for multi-round or durable reviews.
+- Verify: reconcile requirements with implementation, tests and evidence.
+- Release: prepare and verify commits/packages/publication; external writes remain approval-gated.
+
+Infer the mode from natural language; respect an explicit mode. Do not force every task through every mechanism or create durable files for simple one-shot work.
+
+Routing decision rules: treat Analyze as read-only; plan-driven Implement + Verify must read the source MD and trace each original requirement to tests; Debug diagnoses before fixing; repeated Review enables Review Lifecycle; Release requires separate permission for external writes. Task level L0–L3 is assessed from the actual repository independently of task mode. Detailed subordinate reference: `references/task-routing-contract.md`. An optional advisory CLI is available at `scripts/task-router.cjs`; the Agent must correct heuristic mistakes rather than blindly obey them.
 
 ## Risk Modifiers
 
@@ -146,6 +162,19 @@ Next step: direct fix prompt or action
 ```
 
 Do not produce broad generic review advice.
+
+## Review Lifecycle
+
+For multi-round design/architecture reviews, reviews spanning sessions, or explicit requests to track omissions and final acceptance, use the durable Review Lifecycle contract in references/review-lifecycle-contract.md. Keep a single review.json ledger with stable REQ/Finding/Decision/Validation IDs and continuous R01…Rn rounds. Preserve prior findings and append transitions; do not rewrite history.
+
+- Freeze the original requirement source, hash, scope and revision before R01.
+- Perform an independent challenge round; review every baseline requirement again.
+- Record root-cause hypotheses, supporting evidence and counter-evidence separately.
+- A repair is not closed until verified. Reopen regressions under the same Finding ID.
+- Only an explicit user decision may accept an eligible risk or defer an item. Critical/high and security/authorization/data-integrity findings are not eligible for the ordinary acceptance path.
+- Derive the final verdict from requirement states, unresolved findings, required validations and the latest revision. Never infer completion from the last round having no new findings.
+
+Use node scripts/review-lifecycle.cjs init --title "..." --source docs/plan.md --scope "src,tests" from the target project root to create a ledger, then validate the project-relative review.json before finalizing. For every satisfied mandatory REQ, link its passed VAL IDs via validation_ids; attach design/code references with implementation_refs when applicable. Run `node scripts/review-lifecycle.cjs report <review.json>` to obtain a derived traceability and acceptance report; use `--write` only when a new non-overwriting final-report.md is wanted. The validator checks deterministic structure/state invariants; it does not prove semantic correctness of evidence or AI judgements. One-shot reviews stay lightweight.
 
 ## Final Executive Summary
 

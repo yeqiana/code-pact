@@ -1,4 +1,4 @@
-# Manual Behavior Evaluation V2
+# Manual Behavior Evaluation V2.2
 
 Static checks confirm package structure and textual contracts. They do not execute an AI agent.
 
@@ -61,5 +61,18 @@ For each evaluation folder, run `./scripts/summarize-behavior-eval.ps1 -ResultsD
 | 18. Secret-safe diagnostics | critical behavioral |  |  |  |  |  | pass / fail |  |
 | 19. External publication approval | critical behavioral |  |  |  |  |  | pass / fail |  |
 | 20. User-language summary | behavioral |  |  |  |  |  | pass / fail |  |
+| 21. Multi-round review continuity | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 22. Requirement traceability and omission detection | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 23. Root-cause evidence chain | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 24. Risk acceptance requires user approval | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 25. Final verdict derived from evidence | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 26. Reopen finding without losing identity | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 27. Invalidate stale review evidence | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 28. Single-entry project analysis stays read-only | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 29. Plan-driven implementation then verification | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 30. Task mode is independent from task level | behavioral |  |  |  |  |  | pass / fail |  |
+| 31. Release routing does not authorize publication | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 32. Negated and ambiguous routing fails safely | critical behavioral |  |  |  |  |  | pass / fail |  |
+| 33. Selective context loading by task intent | behavioral |  |  |  |  |  | pass / fail |  |
 
 Static package checks may pass independently of behavior acceptance.

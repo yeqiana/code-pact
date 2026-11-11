@@ -44,6 +44,14 @@ Large tasks get structure.
 
 Task classification in V2 is driven by change surface, uncertainty, blast radius, reversibility, validation cost, and shared-state sensitivity rather than estimated human hours.
 
+
+## Task modes and plan-driven workflows
+
+The same `$code-pact` entrypoint supports **Analyze, Plan, Implement, Debug, Review, Verify and Release**. Task mode is independent from L0–L3 risk level. An optional deterministic suggestion CLI is available via `node scripts/task-router.cjs "Analyze the project"`; it never executes work or grants permissions. See [Task Routing Contract](references/task-routing-contract.md).
+
+For example, a request to implement, test, and accept against an existing Markdown plan routes to **Implement → Verify**, reads the real plan first and traces its original requirements to implementation and validation evidence. Quick project analysis stays read-only; multi-round review activates the existing durable review ledger only when needed.
+
+
 ## What it enforces
 
 ### Minimal Sufficient Change
@@ -79,6 +87,10 @@ Validation is grouped by priority:
 | P2 | optional: performance, large data, extreme UI edge cases |
 
 The agent must not say `merge-ready` when P0 validation was not run or failed.
+
+### Multi-round Review Lifecycle
+
+For repeated design or architecture reviews, Code Pact can maintain a durable ledger of original requirements, findings, decisions, review rounds, and validation evidence. Findings keep stable IDs across rounds; root-cause hypotheses are separated from confirmed causes; risk acceptance requires an explicit user decision. The final verdict is derived from the complete requirement baseline and latest evidence, not just the last review summary. See [Review Lifecycle Contract](references/review-lifecycle-contract.md). One-shot reviews remain lightweight. For durable reviews, start with `node scripts/review-lifecycle.cjs init --title "..." --source docs/plan.md --scope "src,tests"`, populate `review.json`, then run `node scripts/review-lifecycle.cjs report <project-relative-review.json>` to get a requirement-to-validation matrix. Pass `--write` only to create a new, non-overwriting `final-report.md`. Missing real Agent test evidence is reported as BLOCKED, not PASS.
 
 ### Final Executive Summary
 

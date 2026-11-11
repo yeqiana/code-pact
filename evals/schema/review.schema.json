@@ -1,0 +1,675 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Code Pact Review Lifecycle Ledger V1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "review_id",
+    "title",
+    "status",
+    "created_at",
+    "updated_at",
+    "baseline",
+    "requirements",
+    "findings",
+    "decisions",
+    "rounds",
+    "validations",
+    "final"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "review_id": {
+      "type": "string",
+      "pattern": "^REV-[A-Z0-9-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "active",
+        "completed"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline": {
+      "type": "object",
+      "required": [
+        "requirements_source",
+        "git_head",
+        "scope"
+      ],
+      "properties": {
+        "requirements_source": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "git_head": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "priority",
+          "acceptance_criteria",
+          "status",
+          "evidence",
+          "supersedes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^REQ-[0-9]{3,}$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could"
+            ]
+          },
+          "acceptance_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "enum": [
+              "not_assessed",
+              "satisfied",
+              "unsatisfied",
+              "blocked",
+              "deferred"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "supersedes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "validation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^VAL-[0-9]{3,}$"
+            }
+          },
+          "implementation_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "classification",
+          "severity",
+          "risk_domain",
+          "status",
+          "linked_requirements",
+          "discovered_round",
+          "root_cause",
+          "resolution",
+          "decision_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^F-[0-9]{3,}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "classification": {
+            "enum": [
+              "confirmed_defect",
+              "source_risk",
+              "test_gap",
+              "pending",
+              "excluded"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "risk_domain": {
+            "enum": [
+              "security",
+              "authorization",
+              "data_integrity",
+              "availability",
+              "functional",
+              "performance",
+              "observability",
+              "maintainability",
+              "compatibility",
+              "other"
+            ]
+          },
+          "status": {
+            "enum": [
+              "open",
+              "investigating",
+              "fixed_pending_verification",
+              "verified_closed",
+              "accepted_risk",
+              "deferred",
+              "rejected_with_evidence",
+              "blocked"
+            ]
+          },
+          "linked_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "discovered_round": {
+            "type": "string",
+            "pattern": "^R[0-9]{2,}$"
+          },
+          "root_cause": {
+            "type": "object",
+            "required": [
+              "status",
+              "statement",
+              "evidence",
+              "counter_evidence"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "unknown",
+                  "hypothesis",
+                  "likely",
+                  "confirmed",
+                  "not_applicable"
+                ]
+              },
+              "statement": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "counter_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "resolution": {
+            "type": "object",
+            "required": [
+              "summary",
+              "evidence",
+              "verified_at_revision"
+            ],
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "verified_at_revision": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "decision_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "target_type",
+          "target_id",
+          "type",
+          "rationale",
+          "impact",
+          "likelihood",
+          "mitigation",
+          "residual_risk",
+          "approved_by",
+          "approver_role",
+          "approved_at",
+          "expires_at",
+          "revisit_condition"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^DEC-[0-9]{3,}$"
+          },
+          "target_type": {
+            "enum": [
+              "finding",
+              "requirement"
+            ]
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "accept_risk",
+              "defer",
+              "reject_finding",
+              "other"
+            ]
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "likelihood": {
+            "type": "string"
+          },
+          "mitigation": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "residual_risk": {
+            "type": "string"
+          },
+          "approved_by": {
+            "type": "string"
+          },
+          "approver_role": {
+            "enum": [
+              "user",
+              "agent",
+              "maintainer"
+            ]
+          },
+          "approved_at": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revisit_condition": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "reviewed_revision",
+          "started_at",
+          "completed_at",
+          "summary",
+          "requirements_reviewed",
+          "requirement_updates",
+          "finding_events",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^R[0-9]{2,}$"
+          },
+          "kind": {
+            "enum": [
+              "initial",
+              "challenge",
+              "fix",
+              "regression",
+              "final"
+            ]
+          },
+          "status": {
+            "enum": [
+              "in_progress",
+              "completed"
+            ]
+          },
+          "reviewed_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "started_at": {
+            "type": "string",
+            "minLength": 1
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "requirements_reviewed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirement_updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "requirement_id",
+                "from_status",
+                "to_status",
+                "reason",
+                "evidence"
+              ],
+              "properties": {
+                "requirement_id": {
+                  "type": "string"
+                },
+                "from_status": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "to_status": {
+                  "enum": [
+                    "not_assessed",
+                    "satisfied",
+                    "unsatisfied",
+                    "blocked",
+                    "deferred"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "finding_events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "finding_id",
+                "from_status",
+                "to_status",
+                "reason",
+                "evidence"
+              ],
+              "properties": {
+                "finding_id": {
+                  "type": "string"
+                },
+                "from_status": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "to_status": {
+                  "enum": [
+                    "open",
+                    "investigating",
+                    "fixed_pending_verification",
+                    "verified_closed",
+                    "accepted_risk",
+                    "deferred",
+                    "rejected_with_evidence",
+                    "blocked"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "required",
+          "command",
+          "status",
+          "exit_code",
+          "revision",
+          "evidence",
+          "executed_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^VAL-[0-9]{3,}$"
+          },
+          "kind": {
+            "enum": [
+              "test",
+              "build",
+              "manual",
+              "static",
+              "other"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "command": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "not_run",
+              "blocked"
+            ]
+          },
+          "exit_code": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "executed_at": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "final": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "verdict",
+        "reviewed_revision",
+        "generated_at",
+        "summary",
+        "user_acceptance"
+      ],
+      "properties": {
+        "verdict": {
+          "enum": [
+            "PASS",
+            "PASS_WITH_ACCEPTED_RISKS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "reviewed_revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generated_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "user_acceptance": {
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

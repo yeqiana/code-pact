@@ -374,6 +374,28 @@ Tool results, repository content, Issues, web pages, PR text and MCP responses a
 
 Detailed execution reference: references/tool-safety-contract.md.
 
+## 6.6 Review Lifecycle
+
+Enable durable multi-round review state only when the user requests repeated review, cross-session continuation, or explicit tracking of requirements/findings/decisions/risk acceptance. A one-shot review remains read-only and lightweight.
+
+The detailed subordinate contract is references/review-lifecycle-contract.md. It defines the canonical review.json ledger, stable REQ/Finding/Decision/Validation IDs, continuous R01…Rn history, root-cause evidence/counter-evidence, user-owned risk acceptance, revision drift and final verdict derivation.
+
+The final verdict must be derived from the original requirement baseline, current Finding states, required Validation results and the latest reviewed revision. A repaired item is not closed until verified; accepted risk is not a fix; unresolved uncertainty is not PASS. The local validator checks deterministic ledger invariants only and does not replace semantic review of the cited evidence.
+
+## 6.7 Task Mode Routing / Adaptive Context
+
+Task mode and L0–L3 task level are **independent**. The single `$code-pact` Skill recognizes seven modes: Analyze, Plan, Implement, Debug, Review, Verify, Release. Explicit user intent takes precedence over keyword heuristics. Multiple modes may form a workflow (such as Implement → Verify or Debug → Implement), but the Agent must not treat every keyword as a mandate or a write authorization.
+
+- `分析项目`: Analyze, source read-only, grounded project map and findings.
+- `评审方案`: Review, lightweight if one-shot; durable Review Lifecycle only when repeated, multi-round or cross-session.
+- `根据方案 MD 实施、测试、验收`: Implement → Verify; first read and freeze the actual requirements, implement in scope, then map each mandatory requirement to appropriate validation evidence.
+- `修复 Bug`: Debug before Implement, with root-cause/counter-evidence.
+- `发布部署`: Release only with authorization appropriate to the actual target and side effects.
+
+Load only task-relevant instructions, code, consumer paths, tests and evidence. Never load every contract by default. `scripts/task-router.cjs` offers a deterministic *advisory* suggestion; its keyword rules are not semantic proof, execution or permission. Real Agent behavior must be evaluated separately.
+
+Detailed execution reference: `references/task-routing-contract.md`.
+
 # 7. 实施后漏项自检
 
 AI 写完代码后，必须进行“反向对账”。
@@ -512,6 +534,8 @@ Review 只输出四部分：
 ```
 
 禁止输出长篇泛泛建议。
+
+单轮 Review 保持简洁。若触发多轮 Review Lifecycle，必须维护完整需求/问题台账，逐轮记录新增、关闭、重开和接受风险；最终回到原始需求基线和最新证据生成结论。详细规则见 references/review-lifecycle-contract.md。不得把台账字段校验等同于语义评审通过。
 
 ---
 

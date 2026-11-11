@@ -32,6 +32,16 @@ AI 写代码很快，但经常出现这些问题：
 
 项目也提供 [工具安全契约](references/tool-safety-contract.md)：把 MCP/网页/Issue 输出视为不可信数据，限制敏感信息传播，并对未经授权的外部写入和破坏性操作设立审批边界。最终摘要按照用户所用语言生成。
 
+
+## 统一任务入口
+
+使用同一个 `$code-pact` 入口即可根据意图选择 **Analyze（项目分析）、Plan（方案规划）、Implement（实施开发）、Debug（故障排查）、Review（设计/代码评审）、Verify（测试验收）、Release（发布交付）**。任务模式与 L0～L3 风险等级相互独立，不要求每次执行所有流程。
+
+常用指令：`/code-pact 分析项目`（默认只读）；`/code-pact 根据 docs/实施方案.md 实施、测试和验收`（先阅读原始方案，再逐项实施、验证并追溯证据）；`/code-pact 持续多轮评审，直到完成验收`（启用历史问题和需求台账）。这里的 `/code-pact` 写法依赖宿主是否支持对应命令；否则可以调用已安装的 `$code-pact` Skill。
+
+可运行 `node scripts/task-router.cjs "根据 docs/实施方案.md 实施、测试和验收"` 查看确定性路由建议，但它只输出 JSON，不会执行或授权修改。详见[任务路由契约](references/task-routing-contract.md)。
+
+
 ## 核心机制
 
 ### 1. 任务分级
@@ -110,6 +120,10 @@ DTO / 类型
 ```
 
 如果没有验证核心路径，不能写“merge-ready / 可合并”。
+
+### 7. Review Lifecycle（多轮评审闭环）
+
+对于多轮设计/架构评审，Code Pact 会按需维护原始需求、问题、决策、评审轮次和验证证据台账。问题跨轮次保持稳定 ID；根因假设与已确认根因分开；风险接受必须由用户明确批准。最终结论回到全部原始需求和最新证据，不以最后一轮“没有新问题”代替验收。详见[多轮评审契约](references/review-lifecycle-contract.md)。简单的一次性 Review 不创建持久化台账。使用 `node scripts/review-lifecycle.cjs init --title "..." --source docs/plan.md --scope "src,tests"` 建立会话并填写 `review.json` 后，可用 `node scripts/review-lifecycle.cjs report <项目相对路径/review.json>` 查看需求—实现—验证—证据矩阵。仅在需要新建报告文件时加 `--write`，工具不会覆盖原来的 `final-report.md`。未执行的真实 Agent 测试必须显示为 BLOCKED。
 
 ## 快速使用
 
